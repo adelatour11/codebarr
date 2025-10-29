@@ -77,10 +77,27 @@ function startScanner(){
     updateStatus("Initializing scanner...");
 
     Quagga.init({
-        inputStream: { name: "Live", type: "LiveStream", target: document.getElementById('preview'), constraints: { facingMode: "environment", width: { ideal: 640 }, height: { ideal: 480 } } },
-        locator: { patchSize: "medium", halfSample: true },
+        inputStream: { name: "Live", type: "LiveStream", target: document.getElementById('preview'), constraints: { facingMode: "environment", width: { ideal: 640 }, height: { ideal: 480 }, focusMode: "continuous"} },
+        locator: {
+  halfSample: false,           // process full image (not downsampled)
+  patchSize: "large",          // "x-large" for longer barcodes
+  debug: {
+    showCanvas: false,
+    showPatches: false,
+    showFoundPatches: false,
+    showSkeleton: false,
+    showLabels: false,
+    showPatchLabels: false,
+    showRemainingPatchLabels: false,
+    boxFromPatches: {
+      showTransformed: true,
+      showTransformedBox: true,
+      showBB: true
+    }
+  }
+},
         numOfWorkers: navigator.hardwareConcurrency || 4,
-        frequency: 10,
+        frequency: 5,
         decoder: { readers: ["ean_reader"], multiple: false },
         locate: true, singleChannel: false
     }, function(err){
