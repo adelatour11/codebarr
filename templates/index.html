@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lidarr Barcode Scanner</title>
+<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #1e1e2f;
+    color: #eee;
+    text-align: center;
+    padding: 20px;
+}
+h1 { color: #5c9d4e; margin-bottom: 10px; }
+#lidarr-logo { max-width: 128px; margin: 10px auto; display: block; }
+#status { margin: 10px 0; font-weight: bold; }
+#preview-container { position: relative; width: 100%; max-width: 500px; margin: 20px auto; border: 2px solid #5c9d4e; border-radius: 4px; overflow: hidden; background: #000; height: 300px; }
+#scanner-guides::before { content: ""; position: absolute; top: 20%; left: 10%; right: 10%; height: 60%; border: 2px dashed rgba(92,157,78,0.7); }
+.button-group { display: flex; gap: 10px; justify-content: center; margin: 15px 0; }
+.button-group button { flex: 1; padding: 10px; border: none; border-radius: 4px; background: #5c9d4e; color: #fff; font-weight: bold; cursor: pointer; }
+.button-group button:hover { background: #4b8440; }
+#toggle-container { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
+#toggle-container button { padding: 10px; border-radius: 4px; border: none; background: #888; color: #fff; cursor: pointer; flex: 1; }
+#barcode { padding: 8px; width: 200px; margin: 10px 0; border-radius: 4px; border: 1px solid #5c9d4e; }
+.progress-container { width: 80%; height: 20px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden; }
+.progress-bar { height: 100%; width: 0%; background: #5c9d4e; transition: width 0.3s; }
+#debug-info { margin-top: 10px; color: #ccc; }
+#album-info { margin-top: 10px; }
+#add-album-btn { padding: 10px 20px; margin-top: 10px; border-radius: 4px; border: none; background: #5c9d4e; color: #fff; font-weight: bold; cursor: pointer; display: none; }
+#add-album-btn:hover { background: #4b8440; }
+</style>
+</head>
+<body>
+
+<img id="lidarr-logo" src="https://raw.githubusercontent.com/Lidarr/Lidarr/develop/Logo/128.png" alt="Lidarr Logo">
+<h1>Lidarr Barcode Scanner</h1>
+<div id="status">📷 Scanner stopped.</div>
+
+<div id="preview-container">
+    <div id="preview"></div>
+    <div id="scanner-guides"></div>
+</div>
+
+<div id="toggle-container">
+    <button id="toggle-flashlight">🔦 Flashlight</button>
+    <button id="reset-scanner">🔄 Reset</button>
+</div>
+
+<div class="button-group">
+    <button id="start-scanner">Start Scanner</button>
+    <button id="stop-scanner">Stop Scanner</button>
+</div>
+
+<input type="text" id="barcode" placeholder="EAN-13 barcode">
+
+<div id="album-info"></div>
+<button id="add-album-btn">Add Album to Lidarr</button>
+
+<div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+<div id="debug-info"></div>
+
+<script>
+let scannerRunning = false;
+let videoTrack = null;
+let flashlightOn = false;
+let currentBarcode = null;
+
+// --- SCANNER LOGIC ---
+function updateStatus(msg){ document.getElementById('status').innerText = msg; }
+function updateProgress(percent){ document.getElementById('progress-bar').style.width = percent + "%"; }
+
+function startScanner(){
+    if(scannerRunning) return;
+    scannerRunning = true;
+    updateStatus("Initializing scanner...");
+
+    Quagga.init({
+        inputStream: { name: "Live", type: "LiveStream", target: document.getElementById('preview'), constraints: { facingMode: "environment", width: { ideal: 640 }, height: { ideal: 480 } } },
+        locator: { patchSize: "medium", halfSample: true },
+        numOfWorkers: navigator.hardwareConcurrency || 4,
+        frequency: 10,
+        decoder: { readers: ["ean_reader"], multiple: false },
+        locate: true, singleChannel: false
+    }, function(err){
+        if(err){ console.error(err); return; }
+        Quagga.start();
+        updateStatus("Scanner ready. Align barcode inside the guides.");
+        const videoEl = document.querySelector('#preview video');
+        if(videoEl && videoEl.srcObject) videoTrack = videoEl.srcObject.getVideoTracks()[0];
+    });
+
+    Quagga.onDetected(result=>{
+        const code = result.codeResult.code;
+        currentBarcode = code;
+        document.getElementById('barcode').value = code;
+        updateStatus(`💿 CD Barcode detected: ${code}`);
+        stopScanner();
+        fetchAlbumInfo(code);
+    });
+}
+
+function stopScanner(){
+    if(!scannerRunning) return;
+    Quagga.stop();
+    if(videoTrack){ videoTrack.stop(); videoTrack=null; }
+    scannerRunning=false;
+    flashlightOn=false;
+    updateStatus("Scanner stopped.");
+}
+
+function resetScanner(){
+    stopScanner();
+    currentBarcode = null;
+    document.getElementById('barcode').value = "";
+    document.getElementById('album-info').innerHTML = "";
+    document.getElementById('add-album-btn').style.display = "none";
+    updateProgress(0);
+    updateStatus("Scanner reset.");
+}
+
+document.getElementById('start-scanner').addEventListener('click', startScanner);
+document.getElementById('stop-scanner').addEventListener('click', stopScanner);
+document.getElementById('toggle-flashlight').addEventListener('click', ()=>{
+    if(!videoTrack || !videoTrack.getCapabilities().torch) return;
+    flashlightOn = !flashlightOn;
+    videoTrack.applyConstraints({ advanced: [{ torch: flashlightOn }] });
+});
+document.getElementById('reset-scanner').addEventListener('click', resetScanner);
+
+// --- FETCH ALBUM INFO FROM MUSICBRAINZ ---
+function fetchAlbumInfo(barcode){
+    const infoDiv = document.getElementById('album-info');
+    infoDiv.innerHTML = "🔍 Fetching album info...";
+    fetch(`https://musicbrainz.org/ws/2/release/?query=barcode:${barcode}&fmt=json`)
+    .then(resp => resp.json())
+    .then(data=>{
+        if(!data.releases || data.releases.length === 0){
+            infoDiv.innerHTML = "❌ No album found for this barcode";
+            return;
+        }
+        const release = data.releases[0];
+        const artist = release['artist-credit'][0].name;
+        const album = release.title;
+        infoDiv.innerHTML = `<strong>${album}</strong> by <strong>${artist}</strong>`;
+        document.getElementById('add-album-btn').style.display = 'inline-block';
+    }).catch(err=>{
+        console.error(err);
+        infoDiv.innerHTML = "❌ Error fetching album info";
+    });
+}
+
+// --- ADD ALBUM TO LIDARR ---
+document.getElementById('add-album-btn').addEventListener('click', ()=>{
+    if(!currentBarcode) return;
+    document.getElementById('add-album-btn').disabled = true;
+    updateStatus("Starting album add process...");
+    updateProgress(0);
+    fetch("/submit", { method: "POST", headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: `barcode=${currentBarcode}`})
+    .then(response=>{
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        return reader.read().then(function process({done, value}){
+            if(done) return;
+            buffer += decoder.decode(value, {stream:true});
+            const lines = buffer.split("\n\n");
+            buffer = lines.pop();
+            for(const line of lines){
+                if(line.trim()){
+                    try{
+                        const data = JSON.parse(line);
+                        updateStatus(data.status);
+                        updateProgress(data.progress);
+                    }catch(e){ console.error(e); }
+                }
+            }
+            return reader.read().then(process);
+        });
+    }).catch(err=>{
+        updateStatus("❌ Error adding album");
+        console.error(err);
+    });
+});
+</script>
+
+</body>
+</html>
