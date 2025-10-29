@@ -102,6 +102,13 @@ http://localhost:5000
 4. Click **Add Album to Lidarr**.
 5. Watch progress updates until completion.
 
+
+📱 Mobile Camera Access
+
+If you want to use your phone camera to scan barcodes:
+
+⚠️ Browsers only allow camera access on secure (HTTPS) connections or localhost.
+
 ---
 
 ## 🧠 Architecture Overview
