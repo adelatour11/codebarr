@@ -1,0 +1,1 @@
+Lidarr Bar cde scanner
