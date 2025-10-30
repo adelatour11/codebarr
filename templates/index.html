@@ -9,6 +9,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/service-worker.js')
+    .then(() => console.log("✅ Service worker registered"))
+    .catch(err => console.error("Service worker error:", err));
+}
+</script>
+  
 <style>
 * {
   font-family: inherit;
