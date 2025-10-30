@@ -1,6 +1,6 @@
 {
   "name": "Lidarr Barcode Scanner",
-  "short_name": "LidarrScan",
+  "short_name": "Codebarr",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#202020",
