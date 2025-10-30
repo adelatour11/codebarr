@@ -147,7 +147,3 @@ If you want to use your phone camera to scan barcodes:
 ## 🛠️ License
 
 This project is distributed under the **MIT License**.
-
----
-
-Would you like me to extend this README with **troubleshooting tips** (e.g., camera permissions, Flask setup, or CORS issues)? It can make onboarding smoother for others using your tool.
