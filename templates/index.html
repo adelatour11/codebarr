@@ -40,8 +40,8 @@ h1 { color: #5c9d4e; margin-bottom: 10px; font-weight: 300; /* Thin */}
 .progress-container { width: 80%; height: 20px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden; }
 .progress-bar { height: 100%; width: 0%; background: #5c9d4e; transition: width 0.3s; }
 #debug-info { margin-top: 10px; color: #ccc; }
-#album-info { margin-top: 10px; }
-#add-album-btn { padding: 10px 20px; margin-top: 10px; border-radius: 4px; border: none; background: #5c9d4e; color: #fff; font-weight: 500; cursor: pointer; display: none; }
+#album-info { margin-top: 10px; font-weight: 300;}
+#add-album-btn { padding: 10px 20px; margin-top: 10px; border-radius: 4px; border: none; background: #5c9d4e; color: #fff; font-weight: 300; cursor: pointer; display: none; }
 #add-album-btn:hover { background: #4b8440; }
 </style>
 </head>
@@ -65,7 +65,7 @@ h1 { color: #5c9d4e; margin-bottom: 10px; font-weight: 300; /* Thin */}
     <button id="reset-scanner">🔄 Reset</button>
 </div>
 
-<input type="text" id="barcode" placeholder="EAN-13 or UPC barcode" readonly>
+<input type="text" id="barcode" placeholder="EAN-13 or UPC barcode or enter manually">
 
 <div id="album-info"></div>
 <button id="add-album-btn">Add Album to Lidarr</button>
@@ -151,34 +151,60 @@ function resetScanner(){
 
 document.getElementById('start-scanner').addEventListener('click', startScanner);
 document.getElementById('stop-scanner').addEventListener('click', stopScanner);
-document.getElementById('toggle-flashlight').addEventListener('click', ()=>{
-    if(!videoTrack || !videoTrack.getCapabilities().torch) return;
-    flashlightOn = !flashlightOn;
-    videoTrack.applyConstraints({ advanced: [{ torch: flashlightOn }] });
-});
 document.getElementById('reset-scanner').addEventListener('click', resetScanner);
 
 // --- FETCH ALBUM INFO FROM MUSICBRAINZ ---
 function fetchAlbumInfo(barcode){
     const infoDiv = document.getElementById('album-info');
     infoDiv.innerHTML = "🔍 Fetching album info...";
-    fetch(`https://musicbrainz.org/ws/2/release/?query=barcode:${barcode}&fmt=json`)
-    .then(resp => resp.json())
-    .then(data=>{
-        if(!data.releases || data.releases.length === 0){
-            infoDiv.innerHTML = "❌ No album found for this barcode";
-            return;
-        }
-        const release = data.releases[0];
-        const artist = release['artist-credit'][0].name;
-        const album = release.title;
-        infoDiv.innerHTML = `<strong>${album}</strong> by <strong>${artist}</strong>`;
-        document.getElementById('add-album-btn').style.display = 'inline-block';
-    }).catch(err=>{
-        console.error(err);
-        infoDiv.innerHTML = "❌ Error fetching album info";
-    });
+
+    return fetch(`https://musicbrainz.org/ws/2/release/?query=barcode:${barcode}&fmt=json`)
+        .then(resp => resp.json())
+        .then(data => {
+            if (!data.releases || data.releases.length === 0) {
+                infoDiv.innerHTML = "❌ No album found for this barcode";
+                document.getElementById('add-album-btn').style.display = 'none';
+                return false; // explicitly return false
+            }
+            const release = data.releases[0];
+            const artist = release['artist-credit'][0].name;
+            const album = release.title;
+            infoDiv.innerHTML = `<strong>${album}</strong> by <strong>${artist}</strong>`;
+            document.getElementById('add-album-btn').style.display = 'inline-block';
+            currentBarcode = barcode; // set current barcode here
+            return true;
+        })
+        .catch(err => {
+            console.error(err);
+            infoDiv.innerHTML = "❌ Error fetching album info";
+            document.getElementById('add-album-btn').style.display = 'none';
+            return false;
+        });
 }
+
+// --- MANUAL ENTRY HANDLING ---
+const barcodeInput = document.getElementById('barcode');
+barcodeInput.addEventListener('keydown', async (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const code = event.target.value.trim();
+        if (!code) return;
+
+        barcodeInput.disabled = true;
+        updateStatus(`⏳ Searching for ${code}...`);
+
+        const found = await fetchAlbumInfo(code); // wait for result
+        if (found) {
+            updateStatus(`💿 Manual entry: ${code}`);
+        } else {
+            updateStatus(`❌ No album found for ${code}`);
+        }
+
+        barcodeInput.disabled = false;
+        barcodeInput.focus();
+    }
+});
+
 
 // --- ADD ALBUM TO LIDARR ---
 document.getElementById('add-album-btn').addEventListener('click', ()=>{
