@@ -89,10 +89,6 @@ LIDARR_DEFAULTS = {
 
 Ensure that your Lidarr instance is reachable and the API key is valid.
 
-_rootFolderPath_, _qualityProfileId_, _metadataProfileId_ must exist in Lidarr.
-_monitored_ and _monitorNewItems_ control which releases are downloaded.
-_searchForMissingAlbums_ enables automatic search for missing albums.
-
 ### 3. Run the Application
 
 Start Flask:
