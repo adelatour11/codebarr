@@ -71,8 +71,22 @@ pip install flask requests
 Edit the following variables in your `app.py`:
 
 ```python
-LIDARR_URL = "https://your-lidarr-url"
-API_KEY = "your_lidarr_api_key"
+# Your Lidarr config
+LIDARR_URL = "https://XXXX"
+API_KEY = "XXXXX"
+HEADERS = {"X-Api-Key": API_KEY}
+
+
+LIDARR_DEFAULTS = {
+    "rootFolderPath": "/music",
+    "qualityProfileId": 2,
+    "metadataProfileId": 9,
+    "monitored": False,
+    "monitorNewItems": "none",
+    "addOptions": {
+        "searchForMissingAlbums": False
+    }
+}
 ```
 
 Ensure that your Lidarr instance is reachable and the API key is valid.
