@@ -12,6 +12,18 @@ LIDARR_URL = "https://XXXX"
 API_KEY = "XXXXX"
 HEADERS = {"X-Api-Key": API_KEY}
 
+
+LIDARR_DEFAULTS = {
+    "rootFolderPath": "/music",
+    "qualityProfileId": 2,
+    "metadataProfileId": 9,
+    "monitored": False,
+    "monitorNewItems": "none",
+    "addOptions": {
+        "searchForMissingAlbums": False
+    }
+}
+
 def check_lidarr_config():
     endpoints = {
         "Root folders": "/api/v1/rootfolder",
@@ -72,12 +84,8 @@ def find_or_create_artist(artist_name, artist_mbid):
         "artistName": artist_name,
         "foreignArtistId": artist_mbid,
         "rootFolderPath": "/music",
-        "qualityProfileId": 2,
-        "metadataProfileId": 9,
-        "monitored": True,  # Artist is not monitored
-        "monitorNewItems": "none",  # No new albums are monitored
-        "addOptions": {"searchForMissingAlbums": False}
-    }
+        **LIDARR_DEFAULTS
+}
     r = requests.post(f"{LIDARR_URL}/api/v1/artist", headers=HEADERS, json=payload)
     r.raise_for_status()
     data = r.json()
