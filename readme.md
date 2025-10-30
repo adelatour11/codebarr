@@ -42,7 +42,6 @@ It allows users to scan the barcode of a CD or vinyl, retrieve album information
 
 ### 💡 Utility Controls
 
-* **Flashlight toggle:** Enables torch mode on supported mobile devices.
 * **Reset button:** Clears the scanner, progress bar, and album info for a new scan.
 * **Start/Stop scanner:** Full control of scanning state.
 
