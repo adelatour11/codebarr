@@ -78,14 +78,12 @@ HEADERS = {"X-Api-Key": API_KEY}
 
 
 LIDARR_DEFAULTS = {
-    "rootFolderPath": "/music",
-    "qualityProfileId": 2,
-    "metadataProfileId": 9,
-    "monitored": False,
-    "monitorNewItems": "none",
-    "addOptions": {
-        "searchForMissingAlbums": False
-    }
+    "rootFolderPath": "/music",                      # Music root folder
+    "qualityProfileId": 2,                           # Quality profile ID
+    "metadataProfileId": 9,                          # Metadata profile ID
+    "monitored": False,                              # Monitor artist/album by default
+    "monitorNewItems": "none",                       # How new releases are handled
+    "addOptions": {"searchForMissingAlbums": False}  # Auto-search missing albums
 }
 ```
 
