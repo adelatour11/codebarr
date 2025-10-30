@@ -38,7 +38,6 @@ It allows users to scan the barcode of a CD or vinyl, retrieve album information
   2. Retrieving album data
   3. Checking/creating artist
   4. Adding/monitoring album
-  5. Completion
 
 ### 💡 Utility Controls
 
@@ -48,7 +47,6 @@ It allows users to scan the barcode of a CD or vinyl, retrieve album information
 ### 🧩 UI Highlights
 
 * Clean Lidarr-inspired dark theme.
-* Lidarr logo centered at the top.
 * Responsive layout compatible with desktop and mobile browsers.
 * Inline progress updates via **Server-Sent Events (SSE)** for smooth feedback.
 
