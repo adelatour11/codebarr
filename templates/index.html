@@ -5,36 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lidarr Barcode Scanner</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 
 <style>
+* {
+  font-family: inherit;
+}
+html, body {
+  font-family: 'Roboto', 'Open Sans', sans-serif;
+  font-weight: 100; /* Thin */
+}
 body {
-    font-family: 'Roboto', 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-    background: #1e1e2f;
+    font-family: 'Roboto', 'Open Sans', sans-serif;
+    background: #202020;
     color: #eee;
     text-align: center;
     padding: 20px;
+    font-weight: 100; /* Thin */
+
 }
-<style>
-body {
-    font-family: 'Roboto', 'open sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-    background: #1e1e2f;
-    color: #eee;
-    text-align: center;
-    padding: 20px;
-}
-h1 { color: #5c9d4e; margin-bottom: 10px; }
+h1 { color: #5c9d4e; margin-bottom: 10px; font-weight: 300; /* Thin */}
 #lidarr-logo { max-width: 128px; margin: 10px auto; display: block; }
-#status { margin: 10px 0; font-weight: 500; }
+#status { margin: 10px 0; font-weight: 300; }
 #preview-container { position: relative; width: 100%; max-width: 500px; margin: 20px auto; border: 2px solid #5c9d4e; border-radius: 4px; overflow: hidden; background: #000; height: 300px; }
 #scanner-guides::before { content: ""; position: absolute; top: 20%; left: 10%; right: 10%; height: 60%; border: 2px dashed rgba(92,157,78,0.7); }
 .button-group { display: flex; gap: 10px; justify-content: center; margin: 15px 0; }
-.button-group button { flex: 1; padding: 10px; border: none; border-radius: 4px; background: #5c9d4e; color: #fff; font-weight: 500; cursor: pointer; }
+.button-group button { flex: 1; padding: 10px; border: none; border-radius: 4px; background: #5c9d4e; color: #fff; font-weight: 300; cursor: pointer; }
 .button-group button:hover { background: #4b8440; }
 #toggle-container { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
-#toggle-container button { padding: 10px; border-radius: 4px; border: none; background: #888; color: #fff; cursor: pointer; flex: 1; }
+#toggle-container button { padding: 10px; border-radius: 4px; border: none; background: #888; color: #fff; cursor: pointer; flex: 1; font-weight: 300;}
 #barcode { padding: 8px; width: 200px; margin: 10px 0; border-radius: 4px; border: 1px solid #5c9d4e; }
 .progress-container { width: 80%; height: 20px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden; }
 .progress-bar { height: 100%; width: 0%; background: #5c9d4e; transition: width 0.3s; }
@@ -64,7 +65,7 @@ h1 { color: #5c9d4e; margin-bottom: 10px; }
     <button id="reset-scanner">🔄 Reset</button>
 </div>
 
-<input type="text" id="barcode" placeholder="EAN-13 barcode">
+<input type="text" id="barcode" placeholder="EAN-13 or UPC barcode" readonly>
 
 <div id="album-info"></div>
 <button id="add-album-btn">Add Album to Lidarr</button>
@@ -109,7 +110,7 @@ function startScanner(){
 },
         numOfWorkers: navigator.hardwareConcurrency || 4,
         frequency: 5,
-        decoder: { readers: ["ean_reader"], multiple: false },
+        decoder: { readers: ["ean_reader","upc_reader"], multiple: false },
         locate: true, singleChannel: false
     }, function(err){
         if(err){ console.error(err); return; }
