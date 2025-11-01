@@ -17,7 +17,7 @@ HEADERS = {"X-Api-Key": API_KEY}
 
 # Simple credentials (change as needed)
 USERNAME = os.getenv("CODEBARR_USERNAME", "user")
-PASSWORD = "os.getenv("CODEBARR_PASSWORD", "password")
+PASSWORD = os.getenv("CODEBARR_PASSWORD", "password")
 
 
 
