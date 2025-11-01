@@ -15,6 +15,12 @@ API_KEY = "XXXX"
 HEADERS = {"X-Api-Key": API_KEY}
 
 
+# Simple credentials (change as needed)
+USERNAME = "XXXX"
+PASSWORD = "XXXXX"
+
+
+
 LIDARR_DEFAULTS = {
     "rootFolderPath": "/music",
     "qualityProfileId": 2,
@@ -25,6 +31,31 @@ LIDARR_DEFAULTS = {
         "searchForMissingAlbums": False
     }
 }
+
+
+# Check username/password
+def check_auth(username, password):
+    return username == USERNAME and password == PASSWORD
+
+# Return 401 response to trigger browser login popup
+def authenticate():
+    return Response(
+        "Authentication required", 401,
+        {"WWW-Authenticate": 'Basic realm="Codebarr"'}
+    )
+
+# Decorator to protect routes
+def requires_auth(f):
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    decorated.__name__ = f.__name__
+    return decorated
+
+
+
 
 def check_lidarr_config():
     endpoints = {
@@ -373,6 +404,7 @@ def process_barcode(barcode):
 
 
 @app.route("/")
+@requires_auth
 def index():
     return render_template("index.html")
 
