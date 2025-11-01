@@ -1,7 +1,14 @@
 name: codebarr
 services:
   codebarr:
-    image: ghcr.io/drewstopherlee/codebarr:latest
+    # image: drewstopherlee/codebarr:latest
+    build:
+      context: .
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
+      tags: 
+        - "drewstopherlee/codebarr:latest"
     container_name: codebarr
     ports:
       - 5083:5083
