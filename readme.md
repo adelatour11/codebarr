@@ -77,6 +77,11 @@ API_KEY = "XXXXX"
 HEADERS = {"X-Api-Key": API_KEY}
 
 
+# Simple credentials (change as needed)
+USERNAME = "XXXX"
+PASSWORD = "XXXXX"
+
+
 LIDARR_DEFAULTS = {
     "rootFolderPath": "/music",                      # Music root folder
     "qualityProfileId": 2,                           # Quality profile ID
