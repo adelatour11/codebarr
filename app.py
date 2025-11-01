@@ -10,25 +10,25 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
 # Your Lidarr config
-LIDARR_URL = "https://XXXX"
-API_KEY = "XXXX"
+LIDARR_URL = os.getenv("LIDARR_URL", "https://localhost:8686")
+API_KEY = os.getenv("LIDARR_API_KEY", "yourkey")
 HEADERS = {"X-Api-Key": API_KEY}
 
 
 # Simple credentials (change as needed)
-USERNAME = "XXXX"
-PASSWORD = "XXXXX"
+USERNAME = os.getenv("CODEBARR_USERNAME", "user")
+PASSWORD = "os.getenv("CODEBARR_PASSWORD", "password")
 
 
 
 LIDARR_DEFAULTS = {
-    "rootFolderPath": "/music",
-    "qualityProfileId": 2,
-    "metadataProfileId": 9,
-    "monitored": False,
-    "monitorNewItems": "none",
+    "rootFolderPath": os.getenv("LIDARR_ROOT_FOLDER_PATH", "/music"),
+    "qualityProfileId": int(os.getenv("LIDARR_QUALITY_PROFILE", 2)),
+    "metadataProfileId": int(os.getenv("LIDARR_METADATA_PROFILE", 9)),
+    "monitored": os.getenv("LIDARR_ARTIST_MONITORED", "False").lower() in {"true", "t", "1", "yes"},
+    "monitorNewItems": os.getenv("LIDARR_MONITOR_NEW_ITEMS", "none"),
     "addOptions": {
-        "searchForMissingAlbums": False
+        "searchForMissingAlbums": os.getenv("LIDARR_SEARCH_ON_ADD", "False").lower() in {"true", "t", "1", "yes"}
     }
 }
 
