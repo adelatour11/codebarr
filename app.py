@@ -1,15 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, stream_with_context
+import os
+import signal
 import requests
 import time
 import json
-
+import threading
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
 # Your Lidarr config
 LIDARR_URL = "https://XXXX"
-API_KEY = "XXXXX"
+API_KEY = "XXXX"
 HEADERS = {"X-Api-Key": API_KEY}
 
 
@@ -293,7 +295,7 @@ def update_album_release(album_id, artist_id, album_title, release_mbid):
 def process_barcode(barcode):
     try:
         # Step 1: Fetch exact release from MusicBrainz
-        yield json.dumps({"status": "🔍 Processing barcode...", "progress": 5}) + "\n\n"
+        yield json.dumps({"status": " Processing barcode...", "progress": 5}) + "\n\n"
         release = get_release_from_barcode(barcode)
         release_mbid = release['id']  # exact release MBID
         release_group_mbid = release['release-group']['id']
@@ -301,10 +303,10 @@ def process_barcode(barcode):
         artist_info = release['artist-credit'][0]
         artist_name = artist_info['name']
         artist_mbid = artist_info['artist']['id']
-        yield json.dumps({"status": f"🎵 Found release '{album_title}' by {artist_name}", "progress": 15}) + "\n\n"
+        yield json.dumps({"status": f" Found release '{album_title}' by {artist_name}", "progress": 15}) + "\n\n"
 
         # Step 2: Ensure artist exists
-        yield json.dumps({"status": f"🔎 Checking artist '{artist_name}'...", "progress": 30}) + "\n\n"
+        yield json.dumps({"status": f" Checking artist '{artist_name}'...", "progress": 30}) + "\n\n"
         artist_id = find_or_create_artist(artist_name, artist_mbid)
 
         # Step 3: Ensure album exists
@@ -329,14 +331,14 @@ def process_barcode(barcode):
             album_resp = requests.post(f"{LIDARR_URL}/api/v1/album", headers=HEADERS, json=payload)
             album_resp.raise_for_status()
             album_id = album_resp.json()["id"]
-            yield json.dumps({"status": f"💿 Album '{album_title}' created in Lidarr.", "progress": 60}) + "\n\n"
+            yield json.dumps({"status": f" Album '{album_title}' created in Lidarr.", "progress": 60}) + "\n\n"
         else:
             # Update album monitored flag
             album_data = requests.get(f"{LIDARR_URL}/api/v1/album/{album_id}", headers=HEADERS).json()
             album_data['monitored'] = True
             update_resp = requests.put(f"{LIDARR_URL}/api/v1/album/{album_id}", headers=HEADERS, json=album_data)
             update_resp.raise_for_status()
-            yield json.dumps({"status": f"💿 Album '{album_title}' already exists. Marked as monitored.", "progress": 60}) + "\n\n"
+            yield json.dumps({"status": f" Album '{album_title}' already exists. Marked as monitored.", "progress": 60}) + "\n\n"
 
             # Step 4: Wait for Lidarr to fetch releases and monitor the exact one
             timeout = 60  # total seconds to wait
@@ -381,6 +383,21 @@ def submit():
     if not barcode:
         return Response("error: No barcode provided", status=400, mimetype="text/plain")
     return Response(stream_with_context(process_barcode(barcode)), mimetype="text/event-stream")
+    
+    
+
+@app.route("/shutdown", methods=["POST"])
+def shutdown():
+    def delayed_shutdown():
+        time.sleep(1)
+        os.kill(os.getpid(), signal.SIGTERM)
+
+    threading.Thread(target=delayed_shutdown).start()
+    # return a small HTML page that refreshes before DSM intercepts
+    return Response(
+        "Codebarr is shutting down...",
+        mimetype="text/html",
+    )
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5083)
