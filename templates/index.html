@@ -57,7 +57,7 @@ h1 { color: #5c9d4e; margin-bottom: 10px; font-weight: 300; /* Thin */}
 
 <img id="lidarr-logo" src="https://raw.githubusercontent.com/Lidarr/Lidarr/develop/Logo/128.png" alt="Lidarr Logo">
 <h1>Lidarr Barcode Scanner</h1>
-<div id="status">📷 Scanner stopped.</div>
+<div id="status"> Scanner stopped.</div>
 
 <div id="preview-container">
     <div id="preview"></div>
@@ -70,7 +70,7 @@ h1 { color: #5c9d4e; margin-bottom: 10px; font-weight: 300; /* Thin */}
 </div>
 
 <div id="toggle-container">
-    <button id="reset-scanner">🔄 Reset</button>
+    <button id="reset-scanner"> Reset</button>
 </div>
 
 <input type="text" id="barcode" placeholder="EAN-13 or UPC barcode or enter manually">
@@ -80,6 +80,21 @@ h1 { color: #5c9d4e; margin-bottom: 10px; font-weight: 300; /* Thin */}
 
 <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
 <div id="debug-info"></div>
+
+
+<div id="app-control" style="margin-top: 20px;">
+  <button id="stop-app-btn" style="
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    background: #c0392b;
+    color: #fff;
+    font-weight: 300;
+    cursor: pointer;
+  "> Stop App</button>
+
+</div>
+
 
 <script>
 let scannerRunning = false;
@@ -132,7 +147,7 @@ function startScanner(){
         const code = result.codeResult.code;
         currentBarcode = code;
         document.getElementById('barcode').value = code;
-        updateStatus(`💿 CD Barcode detected: ${code}`);
+        updateStatus(` CD Barcode detected: ${code}`);
         stopScanner();
         fetchAlbumInfo(code);
     });
@@ -164,7 +179,7 @@ document.getElementById('reset-scanner').addEventListener('click', resetScanner)
 // --- FETCH ALBUM INFO FROM MUSICBRAINZ ---
 function fetchAlbumInfo(barcode){
     const infoDiv = document.getElementById('album-info');
-    infoDiv.innerHTML = "🔍 Fetching album info...";
+    infoDiv.innerHTML = " Fetching album info...";
 
     return fetch(`https://musicbrainz.org/ws/2/release/?query=barcode:${barcode}&fmt=json`)
         .then(resp => resp.json())
@@ -203,7 +218,7 @@ barcodeInput.addEventListener('keydown', async (event) => {
 
         const found = await fetchAlbumInfo(code); // wait for result
         if (found) {
-            updateStatus(`💿 Manual entry: ${code}`);
+            updateStatus(` Manual entry: ${code}`);
         } else {
             updateStatus(`❌ No album found for ${code}`);
         }
@@ -246,6 +261,25 @@ document.getElementById('add-album-btn').addEventListener('click', ()=>{
         console.error(err);
     });
 });
+
+
+
+document.getElementById("stop-app-btn").addEventListener("click", ()=>{
+    if(confirm("Are you sure you want to stop Codebarr?")){
+        updateStatus(" Stopping Flask server...");
+        fetch("/shutdown", { method: "POST" })
+        .then(resp => resp.text())
+        .then(txt => {
+            updateStatus(txt);
+            updateProgress(100);
+        })
+        .catch(err => {
+            updateStatus("❌ Error stopping app");
+            console.error(err);
+        });
+    }
+});
+
 </script>
 
 </body>
