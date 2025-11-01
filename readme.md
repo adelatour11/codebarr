@@ -3,7 +3,7 @@
 This project provides a **web-based barcode scanner** connected to a **Flask backend** that integrates directly with **Lidarr**.
 It allows users to scan the barcode of a CD or vinyl, retrieve album information from **MusicBrainz**, confirm the details, and automatically add the album to **Lidarr** while displaying real-time progress updates.
 
-<img width="668" height="858" alt="image" src="https://github.com/user-attachments/assets/84a35133-73d2-42c8-a406-23db689385b3" />
+<img width="937" height="1333" alt="image" align="center" src="https://github.com/user-attachments/assets/edf00538-6d13-43f2-b4c8-cacd57123b1f" />
 
 
 ## 🚀 Features
