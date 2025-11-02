@@ -162,7 +162,8 @@ If you want to use your phone camera to scan barcodes:
   * Lidarr API (for artist and album management)
 * Streams progress updates to the browser in real time
 
----
+
+
 
 ## 📸 Example Workflow
 
@@ -170,7 +171,8 @@ If you want to use your phone camera to scan barcodes:
 2. Fetch MusicBrainz info → “🎵 Album found: *Ghost Stories* by *Coldplay*”
 3. Confirm addition → “✅ Artist created and album added to Lidarr”
 
----
+
+
 
 ## 🧰 Optional Enhancements
 
@@ -178,7 +180,15 @@ If you want to use your phone camera to scan barcodes:
 * Support manual input for fallback barcodes.
 * Add multiple Lidarr root folders or quality profiles as configuration options.
 
----
+
+
+
+## 🙏 Acknowledgements
+
+Huge thanks to [drewstopherlee](https://github.com/drewstopherlee) for his outstanding work on developing and refining the Docker support for this project !
+
+
+
 
 ## 🛠️ License
 
