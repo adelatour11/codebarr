@@ -5,21 +5,21 @@ import requests
 import time
 import json
 import threading
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"
+app.secret_key = os.getenv("SECRET_KEY", "your_secret_key_here")
 
 # Your Lidarr config
 LIDARR_URL = os.getenv("LIDARR_URL", "https://localhost:8686")
 API_KEY = os.getenv("LIDARR_API_KEY", "yourkey")
 HEADERS = {"X-Api-Key": API_KEY}
 
-
 # Simple credentials (change as needed)
 USERNAME = os.getenv("CODEBARR_USERNAME", "user")
 PASSWORD = os.getenv("CODEBARR_PASSWORD", "password")
-
-
 
 LIDARR_DEFAULTS = {
     "rootFolderPath": os.getenv("LIDARR_ROOT_FOLDER_PATH", "/music"),
