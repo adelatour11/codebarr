@@ -54,49 +54,68 @@ It allows users to scan the barcode of a CD or vinyl, retrieve album information
 
 ## ⚙️ Setup & Configuration
 
-### 1. Requirements
+### 1. Download Codebarr
 
-* Python 3.9+
-* Flask
-* Requests
+#### Using Docker
 
-Install dependencies:
+Download the latest `compose.yaml` and `.env.example`:
 
 ```bash
-pip install flask requests
+wget -O compose.yaml https://github.com/adelatour11/codebarr/raw/refs/heads/main/compose.yaml
+wget -O .env https://github.com/adelatour11/codebarr/raw/refs/heads/main/.env.example
+```
+
+#### From Source
+
+##### Requirements
+
+* Python 3.9+
+* Git
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/adelatour11/codebarr
+cd codebarr
+pip install -r requirements.txt
+```
+
+Copy the `.env.example` file:
+
+```bash
+cp .env.example .env
 ```
 
 ### 2. Configure Lidarr API
 
-Edit the following variables in your `app.py`:
+Edit the following variables in your `.env`:
 
-```python
-# Your Lidarr config
-LIDARR_URL = "https://XXXX"
-API_KEY = "XXXXX"
-HEADERS = {"X-Api-Key": API_KEY}
-
-
-# Simple credentials (change as needed)
-USERNAME = "XXXX"
-PASSWORD = "XXXXX"
-
-
-LIDARR_DEFAULTS = {
-    "rootFolderPath": "/music",                      # Music root folder
-    "qualityProfileId": 2,                           # Quality profile ID
-    "metadataProfileId": 9,                          # Metadata profile ID
-    "monitored": False,                              # Monitor artist/album by default
-    "monitorNewItems": "none",                       # How new releases are handled
-    "addOptions": {"searchForMissingAlbums": False}  # Auto-search missing albums
-}
+```ini
+SECRET_KEY=your_secret_key_here     # Flask secret key (randomly-generated, long string)
+CODEBARR_USERNAME=user              # HTTP Basic Auth username
+CODEBARR_PASSWORD=password          # HTTP Basic Auth password
+LIDARR_URL=https://localhost:8686   # Lidarr URL
+LIDARR_API_KEY=yourkey              # Lidarr API key
+LIDARR_ROOT_FOLDER_PATH=/music      # Music root folder
+LIDARR_QUALITY_PROFILE=2            # Quality profile ID
+LIDARR_METADATA_PROFILE=9           # Metadata profile ID
+LIDARR_ARTIST_MONITORED=false       # Monitor artist/album by default
+LIDARR_MONITOR_NEW_ITEMS=none       # How new releases are handled (options: all, none, new)
+LIDARR_SEARCH_ON_ADD=false          # Auto-search missing albums
 ```
 
 Ensure that your Lidarr instance is reachable and the API key is valid.
 
 ### 3. Run the Application
 
-Start Flask:
+Start Codebarr using Docker Compose:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+Or using Python (from source):
 
 ```bash
 python app.py
@@ -108,7 +127,7 @@ Then open your browser and navigate to:
 http://localhost:5083
 ```
 
-### 4. Usage
+### Usage
 
 1. Click **Start Scanner**.
 2. Point your camera at a CD barcode.
