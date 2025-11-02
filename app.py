@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "your_secret_key_here")
+app.secret_key = os.getenv("CODEBARR_SECRET_KEY", "your_secret_key_here")
 
 # Your Lidarr config
 LIDARR_URL = os.getenv("LIDARR_URL", "https://localhost:8686")
