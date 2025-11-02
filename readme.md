@@ -91,7 +91,7 @@ cp .env.example .env
 Edit the following variables in your `.env`:
 
 ```ini
-SECRET_KEY=your_secret_key_here     # Flask secret key (randomly-generated, long string)
+CODEBARR_SECRET_KEY=your_secret_key_here     # Flask secret key (randomly-generated, long string)
 CODEBARR_USERNAME=user              # HTTP Basic Auth username
 CODEBARR_PASSWORD=password          # HTTP Basic Auth password
 LIDARR_URL=https://localhost:8686   # Lidarr URL
