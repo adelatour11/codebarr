@@ -1,7 +1,10 @@
 name: codebarr
 services:
   codebarr:
-    image: ghcr.io/adelatour11/codebarr:latest
+    image: ghcr.io/drewstopherlee/codebarr:latest
+    container_name: codebarr
+    ports:
+      - 5083:5083
     container_name: codebarr
     ports:
       - 5083:5083

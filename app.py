@@ -21,6 +21,8 @@ HEADERS = {"X-Api-Key": API_KEY}
 USERNAME = os.getenv("CODEBARR_USERNAME", "user")
 PASSWORD = os.getenv("CODEBARR_PASSWORD", "password")
 
+
+
 LIDARR_DEFAULTS = {
     "rootFolderPath": os.getenv("LIDARR_ROOT_FOLDER_PATH", "/music"),
     "qualityProfileId": int(os.getenv("LIDARR_QUALITY_PROFILE", 2)),
